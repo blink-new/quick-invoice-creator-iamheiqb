@@ -16,52 +16,22 @@ import {
   User,
   Building,
   DollarSign,
-  Download,
-  Eye
+  Eye,
+  Save,
+  History
 } from 'lucide-react'
 import { InvoicePreview } from './InvoicePreview'
 import { EmailDialog } from './EmailDialog'
+import { InvoiceData, InvoiceItem } from '../types/invoice'
+import { InvoiceStorage } from '../utils/invoiceStorage'
 
-interface InvoiceItem {
-  id: string
-  description: string
-  quantity: number
-  rate: number
-  amount: number
+interface InvoiceCreatorProps {
+  onViewHistory: () => void
 }
 
-interface InvoiceData {
-  invoiceNumber: string
-  date: string
-  dueDate: string
-  
-  // Business Info
-  businessName: string
-  businessEmail: string
-  businessAddress: string
-  
-  // Client Info
-  clientName: string
-  clientEmail: string
-  clientAddress: string
-  
-  // Items
-  items: InvoiceItem[]
-  
-  // Tax Settings
-  taxRate: number
-  
-  // Notes
-  notes: string
-  
-  // Totals
-  subtotal: number
-  tax: number
-  total: number
-}
-
-export function InvoiceCreator() {
+export function InvoiceCreator({ onViewHistory }: InvoiceCreatorProps) {
   const [invoice, setInvoice] = useState<InvoiceData>({
+    id: `inv-${Date.now()}`,
     invoiceNumber: `INV-${Date.now()}`,
     date: new Date().toISOString().split('T')[0],
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
@@ -82,7 +52,11 @@ export function InvoiceCreator() {
     
     subtotal: 0,
     tax: 0,
-    total: 0
+    total: 0,
+    
+    status: 'unpaid',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   })
 
   const [showPreview, setShowPreview] = useState(false)
@@ -162,9 +136,33 @@ export function InvoiceCreator() {
     setInvoice(updatedInvoice)
   }
 
+  const saveInvoice = () => {
+    try {
+      const invoiceToSave = {
+        ...invoice,
+        updatedAt: new Date().toISOString()
+      }
+      InvoiceStorage.save(invoiceToSave)
+      toast.success('Invoice saved successfully!')
+    } catch {
+      toast.error('Failed to save invoice')
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="mb-8 text-center">
+        <div className="flex justify-between items-center mb-4">
+          <Button
+            onClick={onViewHistory}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <History className="h-4 w-4" />
+            View History
+          </Button>
+          <div></div>
+        </div>
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
           Invoice Creator
         </h1>
@@ -489,12 +487,12 @@ export function InvoiceCreator() {
               Send Email
             </Button>
             <Button
-              onClick={() => toast.success('PDF download feature coming soon!')}
+              onClick={saveInvoice}
               variant="outline"
               className="h-12 border-orange-200 hover:bg-orange-50"
             >
-              <Download className="h-4 w-4 mr-2" />
-              Download PDF
+              <Save className="h-4 w-4 mr-2" />
+              Save Invoice
             </Button>
           </div>
         </div>
