@@ -48,6 +48,9 @@ interface InvoiceData {
   // Items
   items: InvoiceItem[]
   
+  // Tax Settings
+  taxRate: number
+  
   // Notes
   notes: string
   
@@ -73,6 +76,8 @@ export function InvoiceCreator() {
     
     items: [{ id: '1', description: '', quantity: 1, rate: 0, amount: 0 }],
     
+    taxRate: 10, // Default 10% tax rate
+    
     notes: '',
     
     subtotal: 0,
@@ -83,9 +88,9 @@ export function InvoiceCreator() {
   const [showPreview, setShowPreview] = useState(false)
   const [showEmailDialog, setShowEmailDialog] = useState(false)
 
-  const calculateTotals = (items: InvoiceItem[], taxRate: number = 0.1) => {
+  const calculateTotals = (items: InvoiceItem[], taxRate: number) => {
     const subtotal = items.reduce((sum, item) => sum + item.amount, 0)
-    const tax = subtotal * taxRate
+    const tax = subtotal * (taxRate / 100)
     const total = subtotal + tax
     
     return { subtotal, tax, total }
@@ -103,7 +108,7 @@ export function InvoiceCreator() {
       return item
     })
     
-    const totals = calculateTotals(updatedItems)
+    const totals = calculateTotals(updatedItems, invoice.taxRate)
     
     setInvoice(prev => ({
       ...prev,
@@ -134,7 +139,7 @@ export function InvoiceCreator() {
     }
     
     const updatedItems = invoice.items.filter(item => item.id !== id)
-    const totals = calculateTotals(updatedItems)
+    const totals = calculateTotals(updatedItems, invoice.taxRate)
     
     setInvoice(prev => ({
       ...prev,
@@ -144,7 +149,17 @@ export function InvoiceCreator() {
   }
 
   const handleInputChange = (field: keyof InvoiceData, value: string | number) => {
-    setInvoice(prev => ({ ...prev, [field]: value }))
+    const updatedInvoice = { ...invoice, [field]: value }
+    
+    // Recalculate totals when tax rate changes
+    if (field === 'taxRate') {
+      const totals = calculateTotals(updatedInvoice.items, Number(value))
+      updatedInvoice.subtotal = totals.subtotal
+      updatedInvoice.tax = totals.tax
+      updatedInvoice.total = totals.total
+    }
+    
+    setInvoice(updatedInvoice)
   }
 
   return (
@@ -398,19 +413,43 @@ export function InvoiceCreator() {
               
               <Separator />
               
-              <div className="space-y-2 text-right">
-                <div className="flex justify-between">
-                  <span className="font-medium">Subtotal:</span>
-                  <span>${invoice.subtotal.toFixed(2)}</span>
+              <div className="space-y-3">
+                {/* Tax Rate Input */}
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="taxRate" className="text-sm font-medium">
+                    Tax Rate (%)
+                  </Label>
+                  <div className="w-24">
+                    <Input
+                      id="taxRate"
+                      type="number"
+                      value={invoice.taxRate}
+                      onChange={(e) => handleInputChange('taxRate', parseFloat(e.target.value) || 0)}
+                      min="0"
+                      max="100"
+                      step="0.01"
+                      className="text-right"
+                    />
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-                  <span>Tax (10%):</span>
-                  <span>${invoice.tax.toFixed(2)}</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total:</span>
-                  <span className="text-green-600">${invoice.total.toFixed(2)}</span>
+                
+                <Separator className="opacity-50" />
+                
+                {/* Totals */}
+                <div className="space-y-2 text-right">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Subtotal:</span>
+                    <span>${invoice.subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
+                    <span>Tax ({invoice.taxRate}%):</span>
+                    <span>${invoice.tax.toFixed(2)}</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between text-lg font-bold">
+                    <span>Total:</span>
+                    <span className="text-green-600">${invoice.total.toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
             </CardContent>

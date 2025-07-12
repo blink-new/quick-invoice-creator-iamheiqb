@@ -28,6 +28,7 @@ interface InvoiceData {
   clientEmail: string
   clientAddress: string
   items: InvoiceItem[]
+  taxRate: number
   notes: string
   subtotal: number
   tax: number
@@ -152,7 +153,7 @@ export function InvoicePreview({ invoice, open, onOpenChange }: InvoicePreviewPr
                   <span>${invoice.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>Tax (10%):</span>
+                  <span>Tax ({invoice.taxRate}%):</span>
                   <span>${invoice.tax.toFixed(2)}</span>
                 </div>
                 <Separator />

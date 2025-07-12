@@ -32,6 +32,7 @@ interface InvoiceData {
   clientEmail: string
   clientAddress: string
   items: InvoiceItem[]
+  taxRate: number
   notes: string
   subtotal: number
   tax: number
