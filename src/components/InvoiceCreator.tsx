@@ -151,24 +151,43 @@ export function InvoiceCreator({ onViewHistory }: InvoiceCreatorProps) {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <div className="mb-8 text-center">
-        <div className="flex justify-between items-center mb-4">
+      <div className="text-center mb-8">
+        <div className="flex justify-between items-center mb-6">
           <Button
             onClick={onViewHistory}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 px-6 py-3 h-12 hover:bg-blue-50 border-blue-200"
           >
             <History className="h-4 w-4" />
             View History
           </Button>
-          <div></div>
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+              <FileText className="h-6 w-6 text-white" />
+            </div>
+          </div>
         </div>
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-          Invoice Creator
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+          Professional Invoice Creator
         </h1>
-        <p className="text-gray-600 dark:text-gray-300 text-lg">
-          Create professional invoices and send them via email
+        <p className="text-gray-600 dark:text-gray-300 text-xl max-w-2xl mx-auto leading-relaxed">
+          Create stunning invoices in minutes and send them directly to your clients via email. 
+          Professional templates, real-time calculations, and seamless delivery.
         </p>
+        <div className="flex items-center justify-center gap-6 mt-6 text-sm text-gray-500">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            Real-time calculations
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+            Email delivery
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+            Professional templates
+          </div>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
